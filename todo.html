@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>todo控件</title>
+    <style>
+        html,
+        body,
+        h3,
+        div,
+        span,
+        input,
+        ul,
+        li {
+            padding: 0;
+            margin: 0;
+        }
+        
+        ul,
+        ol {
+            list-style: none;
+        }
+        
+        .todo-title {
+            margin: 0 auto;
+            width: 100px;
+        }
+        
+        .todo-wrap,
+        .todo-list-wrap .todo-list .todo-item,
+        .todo-ctrl-wrap {
+            border: 1px solid #ccc;
+            width: 400px;
+            margin: 0 auto;
+            position: relative;
+            height: 48px;
+            border-radius: 5px;
+            font-size: 24px;
+        }
+        
+        .todo-wrap span {
+            font-size: 32px;
+            padding-left: 15px;
+            display: none;
+        }
+        
+        .todo-wrap input {
+            position: absolute;
+            top: 5px;
+            left: 50px;
+            border: none;
+            outline: none;
+            line-height: 36px;
+            width: 300px;
+            font-size: 24px;
+        }
+        
+        .todo-list-wrap .todo-list .todo-item {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .todo-list-wrap .todo-list .todo-o {
+            font-size: 30px;
+            padding-left: 15px;
+        }
+        
+        .todo-list-wrap .todo-list .todo-t {
+            position: absolute;
+            top: 5px;
+            left: 50px;
+            line-height: 36px;
+            width: 300px;
+            font-size: 24px;
+        }
+        
+        .todo-list-wrap .todo-list .todo-x {
+            font-size: 30px;
+            padding-right: 15px;
+            color: red;
+            cursor: pointer;
+            display: none;
+        }
+        
+        .todo-ctrl-wrap {
+            display: none;
+        }
+        
+        .todo-ctrl-wrap .todo-ctrl {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #555;
+            padding-top: 15px;
+        }
+        
+        .todo-ctrl-wrap .todo-ctrl span,
+        .todo-ctrl-wrap .todo-ctrl .ctrl-r {
+            cursor: pointer;
+        }
+        
+        .todo-ctrl-wrap .todo-ctrl .ctrl-all {
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+
+<body>
+    <h3 class="todo-title">todos</h3>
+    <div class="todo-wrap">
+        <span>></span>
+        <input type="text" name="todo" id="todo" placeholder="what needs to be done?">
+    </div>
+    <div class="todo-list-wrap">
+        <ul class="todo-list">
+            <!-- <li class="todo-item"><span class="todo-o">○</span><span class="todo-t">1</span><span class="todo-x">X</span></li> -->
+            <!-- <li class="todo-item"><span class="todo-o">●</span><span class="todo-t">1</span><span class="todo-x">X</span></li> -->
+            <!-- <li class="todo-item"><span class="todo-o">○</span><span class="todo-t">1</span><span class="todo-x">X</span></li> -->
+        </ul>
+    </div>
+    <div class="todo-ctrl-wrap">
+        <ul class="todo-ctrl">
+            <li class="ctrl-l">1 items left</li>
+            <li class="ctrl-m">
+                <span class="ctrl-all">All</span>
+                <span class="ctrl-active">Active</span>
+                <span class="ctrl-completed">Completed</span>
+            </li>
+            <li class="ctrl-r">clear completed</li>
+        </ul>
+    </div>
+    <script src="../lib/jquery-1.12.4.js"></script>
+    <script>
+        $(function() {
+
+            // 1.添加todo
+            // 当文本框按下按键时处理
+            $('.todo-wrap input').on('keydown', function(e) {
+                // 判断用户是否按下了回车： e.which == 13 回车键
+                if (e.which == 13) {
+                    // 增加li标签
+                    inputToLabel();
+                    $('.todo-wrap span').css('display', 'block');
+                    $('.todo-ctrl-wrap').css('display', 'block');
+                    // 4.待办todos数量显示
+                    changeCtrlL();
+                }
+            });
+
+            // 5.全选、未完成、已完成状态的设置，改进：代码重用
+            $('.ctrl-all').on('click', function(e) {
+                $('.todo-item').css('display', 'flex');
+                $(this).css('border', '1px solid #ccc');
+                $(this).siblings().css('border', 'none');
+            });
+            $('.ctrl-active').on('click', function(e) {
+                $('.todo-item').css('display', 'flex');
+                $('.cur').parent().css('display', 'none');
+                $(this).css('border', '1px solid #ccc');
+                $(this).siblings().css('border', 'none');
+            });
+            $('.ctrl-completed').on('click', function(e) {
+                $('.todo-item').css('display', 'none');
+                $('.cur').parent().css('display', 'flex');
+                $(this).css('border', '1px solid #ccc');
+                $(this).siblings().css('border', 'none');
+            });
+
+            // 6.清除所有哦已完成todo
+            $('.ctrl-r').on('click', function(e) {
+                $('.cur').parent().remove();
+            });
+
+
+            function inputToLabel() {
+                // 判断文本框不为空，则进行添加标签操作
+                if ($(".todo-wrap input").val().length > 0) {
+                    // 当前文本框的 文本生成一个li标签放到ul之中
+                    var $lb = $('<li class="todo-item"><span class="todo-o">○</span><span class="todo-t">' + $(".todo-wrap input").val() +
+                        '</span><span class="todo-x">X</span></li>');
+                    // 在文本框前面追加一个lb对象
+                    $(".todo-list-wrap .todo-list").append($lb);
+                    $(".todo-wrap input").val(''); // 设置value为空
+                }
+
+                // 2.单条todo编辑状态
+                $('.todo-item .todo-o').on('click', function(e) {
+                    $(this).text('●');
+                    // 获取3个span，使用dom方法改变样式
+                    var $ti = $(this).parent().children();
+                    $ti[1].style.color = '#ccc';
+                    $ti[2].style.display = 'block';
+                    $(this).addClass('cur');
+                    // 更新待办todos数量
+                    changeCtrlL();
+                });
+
+                // 3.删除单条todo
+                $('.todo-x').on('click', function(e) {
+                    $(this).parent().remove();
+                    // 判断是否删完了
+                    var nowList = $('.todo-list-wrap .todo-list .todo-item').length;
+                    if (nowList == 0) {
+                        $('.todo-wrap span').css('display', 'none');
+                        $('.todo-ctrl-wrap').css('display', 'none');
+                    }
+                });
+            }
+
+            function changeCtrlL() {
+                var todoL = $('.todo-list-wrap .todo-list .todo-item').length - $('.cur').length;
+                $('.todo-ctrl-wrap .ctrl-l').text(todoL + ' items left');
+            }
+        });
+    </script>
+</body>
+
+</html>
